@@ -1,0 +1,44 @@
+services:
+#   nginx:
+#     build:
+#       context: ./nginx
+#     ports:
+#       - "1080:80"
+#     depends_on:
+#       gateway:
+#         condition: service_started
+#       # frontend:
+#       #   condition: service_started
+
+#   # frontend:
+#   #   build:
+#   #     context: ./callmentor-frontend
+#   #     dockerfile: Dockerfile
+
+  gateway:
+    build:
+      context: ./gateway
+    env_file: ./gateway/.env
+    volumes:
+      - ./gateway:/src
+      - ./gateway/migrations:/src/migrations
+    ports:
+      - "8000:8000"
+    # depends_on:
+    #   gateway-db:
+    #     condition: service_started
+    #   ml-service:
+    #     condition: service_healthy
+    #   ml-asr-worker:
+    #     condition: service_started
+    #   ml-llm-worker:
+    #     condition: service_started
+
+  gateway-db:
+    image: postgres:latest
+    shm_size: 1gb
+    env_file: ./gateway/.env
+    # volumes:
+    #   - gateway_postgres_data:/var/lib/postgresql
+    ports:
+      - "5432:5432"

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Отчёт: бэкенд тайм-менеджера</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #5eb8ff;
+      --border: #2d3a4d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 1.05rem;
+    }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    h1 { font-size: 1.75rem; font-weight: 650; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    h2 {
+      font-size: 1.2rem;
+      margin: 2.25rem 0 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    h3 { font-size: 1rem; margin: 1.5rem 0 0.5rem; color: var(--text); }
+    p { margin: 0 0 1rem; color: var(--text); }
+    ul { margin: 0 0 1rem; padding-left: 1.25rem; color: var(--text); }
+    li { margin-bottom: 0.35rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 0.75rem 0 1.25rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--surface); color: var(--accent); font-weight: 600; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    code {
+      font-family: ui-monospace, "Cascadia Code", monospace;
+      font-size: 0.88em;
+      background: var(--surface);
+      padding: 0.12em 0.35em;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .note {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 0.85rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Отчёт по бэкенду приложения тайм-менеджмента</h1>
+      <p class="subtitle">FastAPI · PostgreSQL · Alembic · JWT · слоистая архитектура</p>
+    </header>
+
+    <section>
+      <h2>1. Цель работы</h2>
+      <p>
+        Реализовать серверную часть веб-сервиса для планирования времени: проекты и задачи с приоритетами
+        и статусами, учёт затраченного времени, напоминания, дневные планы, теги и связь записей времени
+        с тегами по схеме <strong>многие-ко-многим</strong> с дополнительным атрибутом на связи
+        (<code>relevance_score</code>).
+      </p>
+    </section>
+
+    <section>
+      <h2>2. Используемые технологии</h2>
+      <ul>
+        <li><strong>Python 3.13+</strong>, асинхронный стек</li>
+        <li><strong>FastAPI</strong> — HTTP API, валидация через Pydantic</li>
+        <li><strong>SQLAlchemy 2</strong> — ORM, async-движок (asyncpg)</li>
+        <li><strong>PostgreSQL</strong> — хранение данных</li>
+        <li><strong>Alembic</strong> — версионирование схемы БД</li>
+        <li><strong>JWT</strong> (python-jose) — аутентификация после логина по OAuth2 password flow</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. Архитектура проекта</h2>
+      <p>Код бэкенда расположен в каталоге <code>students/k3341/Skoblilova_Viktoria/Lr1/gateway/</code> и разделён на слои:</p>
+      <table>
+        <thead>
+          <tr><th>Слой</th><th>Каталог</th><th>Назначение</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Модели</td><td><code>models/</code></td><td>Таблицы и связи SQLAlchemy</td></tr>
+          <tr><td>Схемы</td><td><code>templates/base_models/</code></td><td>Модели запросов/ответов Pydantic</td></tr>
+          <tr><td>Логика</td><td><code>core/auth</code>, <code>core/time</code>, <code>core/users</code></td><td>Операции с БД, проверки владельца, функции <code>*_implementation</code></td></tr>
+          <tr><td>HTTP</td><td><code>api/apps/</code></td><td>Роутеры по доменам (auth, users, time)</td></tr>
+          <tr><td>Миграции</td><td><code>migrations/</code></td><td>Ревизии Alembic</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Такое разделение упрощает сопровождение: изменение правил бизнес-логики не смешивается с описанием
+        маршрутов и структуры таблиц.
+      </p>
+    </section>
+
+    <section>
+      <h2>4. Модель данных</h2>
+      <p>Логические сущности отображаются на таблицы; часть имён таблиц исторически совпадает с прежним «финансовым» шаблоном — это сознательно сохранено для совместимости с цепочкой миграций.</p>
+      <table>
+        <thead>
+          <tr><th>ORM-класс</th><th>Таблица</th><th>Смысл в домене тайм-менеджера</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>AppUser</code></td><td><code>users</code></td><td>Пользователь</td></tr>
+          <tr><td><code>Project</code></td><td><code>finance_accounts</code></td><td>Проект</td></tr>
+          <tr><td><code>Task</code></td><td><code>finance_categories</code></td><td>Задача (приоритет, статус, дедлайн)</td></tr>
+          <tr><td><code>TimeEntry</code></td><td><code>finance_transactions</code></td><td>Запись учёта времени (минуты, качество сессии, заметка)</td></tr>
+          <tr><td><code>Label</code></td><td><code>finance_tags</code></td><td>Тег</td></tr>
+          <tr><td><code>M2M_TimeEntryLabel</code></td><td><code>m2m_transaction_tags</code></td><td>Связь запись ↔ тег, поле <code>relevance_score</code></td></tr>
+          <tr><td><code>Reminder</code></td><td><code>finance_budgets</code></td><td>Напоминание по задаче</td></tr>
+          <tr><td><code>DailyPlan</code></td><td><code>finance_goals</code></td><td>Дневной план</td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        Перечисления задач (приоритет, статус) и канал напоминания (<code>app</code>, <code>email</code>)
+        задаются в коде как строковые enum и сохраняются в БД в текстовом виде.
+      </div>
+    </section>
+
+    <section>
+      <h2>5. API (обзор)</h2>
+      <h3>Авторизация — <code>/auth</code></h3>
+      <ul>
+        <li><code>POST /auth/login</code> — выдача JWT (форма OAuth2: email в поле username)</li>
+        <li><code>POST /auth/register</code> — регистрация</li>
+        <li><code>POST /auth/change-password</code> — смена пароля (Bearer)</li>
+        <li><code>GET /auth/me</code>, <code>GET /auth/users</code> — профиль и списки в зоне auth</li>
+      </ul>
+      <h3>Пользователи</h3>
+      <ul>
+        <li><code>GET /users</code>, <code>GET /users/{id}</code></li>
+        <li><code>GET /users/{id}/details</code> — агрегированный ответ с вложенными сущностями тайм-менеджера</li>
+      </ul>
+      <h3>Домен времени (все с Bearer)</h3>
+      <p>Ресурсы: <code>/projects</code>, <code>/tasks</code>, <code>/time-entries</code>, <code>/reminders</code>, <code>/daily-plans</code>, <code>/tags</code>. Поддерживаются операции CRUD по REST-подобным соглашениям; отдельно <code>POST /time-entry-tags</code> для привязки тега к записи времени.</p>
+    </section>
+
+    <section>
+      <h2>6. Запуск и развёртывание</h2>
+      <p>
+        Рекомендуемый способ — <strong>Docker Compose</strong> из каталога <code>students/k3341/Skoblilova_Viktoria/Lr1</code>:
+        сервисы <code>gateway</code> и <code>gateway-db</code>, переменные из <code>gateway/.env</code>
+        (шаблон — <code>gateway/example.env</code>).
+      </p>
+      <p>
+        При старте приложения выполняется применение миграций и инициализация демо-данных
+        (модуль <code>schedulers.data_init</code>). Для отладки возможен полный сброс схемы через флаг
+        <code>FORCE_RESET_DATABASE</code> в настройках (только для среды разработки).
+      </p>
+    </section>
+
+    <section>
+      <h2>7. Выводы</h2>
+      <p>
+        Собран работоспособный бэкенд с разделением на слои, JWT-аутентификацией и доменной моделью
+        тайм-менеджмента, включая ассоциативную сущность M2M с дополнительным числовым полем на связи.
+        Документация OpenAPI доступна на работающем сервисе по адресу <code>/docs</code> (при включении в точке входа приложения).
+      </p>
+    </section>
+
+    <footer>
+      Статическая страница для GitHub Pages · исходный код и актуальные README — в репозитории проекта (<code>students/k3341/Skoblilova_Viktoria/Lr1/README.md</code>, <code>students/k3341/Skoblilova_Viktoria/Lr1/gateway/README.md</code>).
+    </footer>
+  </div>
+</body>
+</html>
