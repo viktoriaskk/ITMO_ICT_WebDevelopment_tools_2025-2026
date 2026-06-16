@@ -1,0 +1,10 @@
+from python:3.10-slim
+
+workdir /code
+
+copy ./parser/requirements.txt /code/requirements.txt
+run pip install --no-cache-dir -r requirements.txt
+
+copy ./parser /code/parser
+
+env PYTHONPATH=/code
