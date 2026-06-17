@@ -10,9 +10,9 @@ from sys import path
 path.insert(0, str(Path(__file__).parent.parent.parent / 'lr1' / 'lr'))
 
 
-from students.k3341.kovalenko_evgenii.lr1.lr.models import Category
-from students.k3341.kovalenko_evgenii.lr1.lr.config import DB_URL
-from students.k3341.kovalenko_evgenii.lr1.lr.connection import engine
+from students.k3341.Skoblilova_Viktoria.lr1.lr.models import Category
+from students.k3341.Skoblilova_Viktoria.lr1.lr.config import DB_URL
+from students.k3341.Skoblilova_Viktoria.lr1.lr.connection import engine
 
 def sync_connect():
     with Session(engine) as session:

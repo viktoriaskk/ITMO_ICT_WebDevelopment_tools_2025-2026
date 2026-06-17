@@ -11,8 +11,8 @@ from sys import path
 path.insert(0, str(Path(__file__).parent.parent.parent / 'lr1' / 'lr'))
 
 
-from students.k3341.kovalenko_evgenii.lr1.lr.connection import engine
-from students.k3341.kovalenko_evgenii.lr1.lr.models import Category, User, Task, TaskCategoryLink, TaskStatus
+from students.k3341.Skoblilova_Viktoria.lr1.lr.connection import engine
+from students.k3341.Skoblilova_Viktoria.lr1.lr.models import Category, User, Task, TaskCategoryLink, TaskStatus
 
 
 URLS = [
